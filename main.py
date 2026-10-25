@@ -13,7 +13,7 @@ main = Flask(__name__)
 
 base_name = "datitos.db"
 
-main.config["SECRET_KEY"] = "clave-proyecto-electrodomesticos"
+main.config["SECRET_KEY"] = "3l-8R1N-S3-1a C0m3"
 
 
 def conexion_auto():
