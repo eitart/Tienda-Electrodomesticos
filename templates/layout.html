@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block titulo %}Mi Portal{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        marca: "#E8575A"
+                    }
+                }
+            }
+        };
+
+        try {
+            const tema = localStorage.getItem("tema");
+
+            if (tema === "claro") {
+                document.documentElement.classList.remove("dark");
+            }
+        } catch (error) {
+            // Se conserva el tema oscuro si el almacenamiento no está disponible.
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-stone-100 font-sans text-stone-800 transition-colors dark:bg-zinc-950 dark:text-stone-100">
+
+    {% set opciones = [
+        ('Perfil usuario', 'perfil', '/perfil', 'user-round'),
+        ('Productos', 'productos', '/productos', 'package'),
+        ('Ventas', 'ventas', '/ventas', 'shopping-cart'),
+        ('Proveedores', 'proveedores', '/proveedores', 'truck'),
+        ('Usuarios', 'usuarios', '/usuarios', 'users')
+    ] %}
+
+    <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+        <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+
+            {% if session.get('idEmpleado') %}
+                <button
+                    type="button"
+                    id="btn-menu"
+                    aria-label="Abrir navegación"
+                    aria-controls="panel-menu"
+                    aria-expanded="false"
+                    class="rounded-xl p-2 text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-zinc-800">
+
+                    <i data-lucide="layout-grid" class="h-6 w-6"></i>
+                </button>
+            {% endif %}
+
+            <a href="{{ url_for('perfil') if session.get('idEmpleado') else url_for('login') }}"
+               class="flex shrink-0 items-center gap-3">
+
+                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-marca text-white">
+                    <i data-lucide="cpu" class="h-6 w-6"></i>
+                </span>
+
+                <span class="hidden sm:block">
+                    <span class="block text-lg font-bold text-marca">
+                        Mi Portal
+                    </span>
+                    <span class="block text-[10px] tracking-widest text-stone-500 dark:text-stone-400">
+                        ELECTRODOMÉSTICOS
+                    </span>
+                </span>
+            </a>
+
+            {% if session.get('idEmpleado') %}
+                <nav aria-label="Navegación principal"
+                     class="ml-4 hidden items-center gap-4 xl:flex">
+
+                    {% for nombre, endpoint, ruta, icono in opciones %}
+                        {% set activa = request.path == ruta or request.path.startswith(ruta ~ '/') %}
+
+                        <a href="{{ url_for(endpoint) }}"
+                           {% if activa %}aria-current="page"{% endif %}
+                           class="whitespace-nowrap rounded-lg px-2 py-2 text-sm transition
+                           {% if activa %}
+                               bg-marca/10 font-semibold text-marca
+                           {% else %}
+                               text-stone-500 hover:text-marca dark:text-stone-400
+                           {% endif %}">
+                            {{ nombre }}
+                        </a>
+                    {% endfor %}
+                </nav>
+            {% endif %}
+
+            <div class="ml-auto flex items-center gap-3">
+                <button
+                    type="button"
+                    id="btn-tema"
+                    aria-label="Cambiar tema"
+                    class="rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-amber-500 dark:border-zinc-700 dark:bg-zinc-900">
+
+                    <i data-lucide="sun" class="hidden h-5 w-5 dark:block"></i>
+                    <i data-lucide="moon" class="h-5 w-5 dark:hidden"></i>
+                </button>
+
+                {% if session.get('idEmpleado') %}
+                    <a href="{{ url_for('perfil') }}"
+                       class="flex items-center gap-2 rounded-full border border-stone-200 p-1.5 sm:pr-4 dark:border-zinc-700">
+
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-marca/15 text-sm font-bold text-marca">
+                            {{ nombre_usuario[:2]|upper }}
+                        </span>
+
+                        <span class="hidden max-w-36 truncate text-sm font-semibold sm:block">
+                            {{ nombre_usuario }}
+                        </span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if session.get('idEmpleado') %}
+            <div class="relative mx-auto max-w-7xl">
+                <nav id="panel-menu"
+                     aria-label="Menú de secciones"
+                     class="absolute left-4 top-2 hidden w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-stone-200 bg-white p-4 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+
+                    <p class="mb-3 px-2 text-xs font-semibold tracking-widest text-stone-500">
+                        ADMINISTRACIÓN
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        {% for nombre, endpoint, ruta, icono in opciones %}
+                            {% set activa = request.path == ruta or request.path.startswith(ruta ~ '/') %}
+
+                            <a href="{{ url_for(endpoint) }}"
+                               {% if activa %}aria-current="page"{% endif %}
+                               class="rounded-xl p-4 text-center text-sm
+                               {% if activa %}
+                                   bg-marca/10 font-semibold text-marca
+                               {% else %}
+                                   hover:bg-stone-100 dark:hover:bg-zinc-800
+                               {% endif %}">
+
+                                <i data-lucide="{{ icono }}"
+                                   class="mx-auto mb-2 h-6 w-6 text-marca"></i>
+
+                                {{ nombre }}
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <form method="POST" action="{{ url_for('salir') }}"
+                          class="mt-4 border-t border-stone-200 pt-3 dark:border-zinc-700">
+                        <button type="submit"
+                                class="w-full rounded-xl px-4 py-2 text-sm text-marca hover:bg-marca/10">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </nav>
+            </div>
+        {% endif %}
+    </header>
+
+    <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6">
+
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% for categoria, mensaje in mensajes %}
+                <div role="status"
+                     class="mb-5 rounded-xl border px-4 py-3 text-sm
+                     {% if categoria == 'error' %}
+                         border-red-300 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300
+                     {% else %}
+                         border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300
+                     {% endif %}">
+                    {{ mensaje }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block main %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-stone-200 px-4 py-6 text-center text-sm text-stone-500 dark:border-zinc-800 dark:text-stone-400">
+        © 2026 Mi Portal · Cochabamba, Bolivia
+    </footer>
+
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        const btnTema = document.getElementById("btn-tema");
+
+        function actualizarBotonTema() {
+            const oscuro = document.documentElement.classList.contains("dark");
+
+            btnTema.setAttribute(
+                "aria-label",
+                oscuro ? "Activar tema claro" : "Activar tema oscuro"
+            );
+        }
+
+        actualizarBotonTema();
+
+        btnTema.addEventListener("click", () => {
+            const oscuro = document.documentElement.classList.toggle("dark");
+
+            try {
+                localStorage.setItem(
+                    "tema",
+                    oscuro ? "oscuro" : "claro"
+                );
+            } catch (error) {
+                // El cambio visual funciona aunque no se pueda guardar.
+            }
+
+            actualizarBotonTema();
+        });
+
+        const btnMenu = document.getElementById("btn-menu");
+        const panelMenu = document.getElementById("panel-menu");
+
+        if (btnMenu && panelMenu) {
+            function cerrarMenu() {
+                panelMenu.classList.add("hidden");
+                btnMenu.setAttribute("aria-expanded", "false");
+            }
+
+            btnMenu.addEventListener("click", () => {
+                panelMenu.classList.toggle("hidden");
+
+                const abierto = !panelMenu.classList.contains("hidden");
+                btnMenu.setAttribute("aria-expanded", String(abierto));
+            });
+
+            document.addEventListener("click", (evento) => {
+                if (
+                    !panelMenu.contains(evento.target) &&
+                    !btnMenu.contains(evento.target)
+                ) {
+                    cerrarMenu();
+                }
+            });
+
+            document.addEventListener("keydown", (evento) => {
+                if (
+                    evento.key === "Escape" &&
+                    !panelMenu.classList.contains("hidden")
+                ) {
+                    cerrarMenu();
+                    btnMenu.focus();
+                }
+            });
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

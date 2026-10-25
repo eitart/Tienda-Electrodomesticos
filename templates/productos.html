@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+
+{% block titulo %}Productos | Mi Portal{% endblock %}
+
+{% block main %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold">Productos</h1>
+    <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+        Catálogo ordenado alfabéticamente por nombre y stock disponible.
+    </p>
+</div>
+
+<details class="mb-6 rounded-2xl border border-stone-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <summary class="cursor-pointer font-semibold text-marca">
+        Agregar producto
+    </summary>
+
+    <form method="POST" action="{{ url_for('productos') }}"
+          class="mt-6 grid gap-5 sm:grid-cols-2">
+
+        <label class="block text-sm font-medium">
+            Nombre
+            <input name="nombre" required
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium">
+            Marca
+            <input name="marca" required
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium">
+            Categoría
+            <input name="categoria"
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium">
+            Modelo
+            <input name="modelo" required
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium">
+            Precio en bolivianos
+            <input type="number" name="precio"
+                   min="0.01" max="1000000000" step="0.01" required
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium">
+            Stock inicial
+            <input type="number" name="stock"
+                   min="0" step="1" required
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <label class="block text-sm font-medium sm:col-span-2">
+            URL de la foto (opcional)
+            <input type="url" name="foto" placeholder="https://..."
+                   class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <div class="sm:col-span-2">
+            <button type="submit"
+                    class="rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+                Guardar producto
+            </button>
+        </div>
+    </form>
+</details>
+
+<div class="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-stone-100 text-stone-600 dark:bg-zinc-800 dark:text-stone-300">
+                <tr>
+                    <th class="px-5 py-4">ID</th>
+                    <th class="px-5 py-4">Producto</th>
+                    <th class="px-5 py-4">Marca</th>
+                    <th class="px-5 py-4">Modelo</th>
+                    <th class="px-5 py-4">Categoría</th>
+                    <th class="px-5 py-4">Precio</th>
+                    <th class="whitespace-nowrap px-5 py-4">Stock disponible</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-stone-200 dark:divide-zinc-800">
+                {% for producto in productos %}
+                    <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50">
+                        <td class="px-5 py-4">#{{ producto.codProducto }}</td>
+
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                {% if producto.foto %}
+                                    <img src="{{ producto.foto }}"
+                                         alt="{{ producto.nombre }}"
+                                         loading="lazy"
+                                         class="h-12 w-12 shrink-0 rounded-xl object-cover">
+                                {% else %}
+                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
+                                        <i data-lucide="package" class="h-6 w-6"></i>
+                                    </span>
+                                {% endif %}
+
+                                <span class="font-semibold">
+                                    {{ producto.nombre }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">{{ producto.marca }}</td>
+                        <td class="px-5 py-4">{{ producto.modelo }}</td>
+                        <td class="px-5 py-4">{{ producto.categoria or '—' }}</td>
+
+                        <td class="whitespace-nowrap px-5 py-4">
+                            Bs {{ "%.2f"|format(producto.precio) }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {% if producto.stock > 0 %}
+                                <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                    {{ producto.stock }} disponibles
+                                </span>
+                            {% else %}
+                                <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">
+                                    Agotado
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="px-5 py-12 text-center text-stone-500">
+                            Todavía no hay productos registrados.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

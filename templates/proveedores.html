@@ -1,0 +1,259 @@
+{% extends "layout.html" %}
+
+{% block titulo %}Proveedores | Mi Portal{% endblock %}
+
+{% block main %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold">Proveedores y pedidos</h1>
+    <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+        Consulta productos, proveedores, marcas y estados de pedido.
+    </p>
+</div>
+
+<div class="mb-6 grid items-start gap-5 lg:grid-cols-2">
+    <details class="rounded-2xl border border-stone-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <summary class="cursor-pointer font-semibold text-marca">
+            Registrar proveedor
+        </summary>
+
+        <form method="POST" action="{{ url_for('proveedores') }}"
+              class="mt-6 grid gap-4 sm:grid-cols-2">
+
+            <input type="hidden" name="accion" value="proveedor">
+
+            <label class="block text-sm font-medium">
+                Nombre
+                <input name="nombre" required
+                       class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+            </label>
+
+            <label class="block text-sm font-medium">
+                Apellido
+                <input name="apellido" required
+                       class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+            </label>
+
+            <label class="block text-sm font-medium">
+                Dirección
+                <input name="direc" required
+                       class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+            </label>
+
+            <label class="block text-sm font-medium">
+                Teléfono
+                <input type="tel" name="telef" required
+                       class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+            </label>
+
+            <div class="sm:col-span-2">
+                <button type="submit"
+                        class="rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+                    Guardar proveedor
+                </button>
+            </div>
+        </form>
+    </details>
+
+    <details class="rounded-2xl border border-stone-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <summary class="cursor-pointer font-semibold text-marca">
+            Registrar pedido
+        </summary>
+
+        {% if proveedores and productos %}
+            <form method="POST" action="{{ url_for('proveedores') }}"
+                  class="mt-6 space-y-4">
+
+                <input type="hidden" name="accion" value="pedido">
+
+                <label class="block text-sm font-medium">
+                    Proveedor
+                    <select name="idProveedor" required
+                            class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+
+                        {% for proveedor in proveedores %}
+                            <option value="{{ proveedor.idProveedor }}">
+                                #{{ proveedor.idProveedor }} —
+                                {{ proveedor.nombre }} {{ proveedor.apellido }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="block text-sm font-medium">
+                    Producto
+                    <select name="codProducto" required
+                            class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+
+                        {% for producto in productos %}
+                            <option value="{{ producto.codProducto }}">
+                                #{{ producto.codProducto }} —
+                                {{ producto.nombre }} / {{ producto.marca }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="block text-sm font-medium">
+                    Estado del pedido
+                    <select name="estadoPedido"
+                            class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+                        <option value="espera">Espera</option>
+                        <option value="hecho">Hecho</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </label>
+
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    El estado del pedido no modifica las existencias.
+                </p>
+
+                <button type="submit"
+                        class="rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+                    Guardar pedido
+                </button>
+            </form>
+        {% else %}
+            <p class="mt-5 text-sm text-stone-500 dark:text-stone-400">
+                Primero registra al menos un proveedor y un producto.
+            </p>
+        {% endif %}
+    </details>
+</div>
+
+<form method="GET" action="{{ url_for('proveedores') }}"
+      class="mb-6 flex flex-wrap items-end gap-4 rounded-2xl border border-stone-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+
+    <label class="block min-w-0 flex-1 basis-64 text-sm font-medium">
+        ID proveedor, ID producto, nombre del proveedor o producto
+        <input name="buscar" value="{{ buscar }}" placeholder="Buscar pedidos..."
+               class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+    </label>
+
+    <button type="submit"
+            class="inline-flex items-center gap-2 rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+        <i data-lucide="search" class="h-5 w-5"></i>
+        Buscar
+    </button>
+
+    <a href="{{ url_for('proveedores') }}"
+       class="px-2 py-3 text-sm font-medium text-marca">
+        Limpiar
+    </a>
+</form>
+
+<div class="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-stone-100 text-stone-600 dark:bg-zinc-800 dark:text-stone-300">
+                <tr>
+                    <th class="px-4 py-4">Pedido</th>
+                    <th class="whitespace-nowrap px-4 py-4">ID proveedor</th>
+                    <th class="px-4 py-4">Proveedor</th>
+                    <th class="whitespace-nowrap px-4 py-4">ID producto</th>
+                    <th class="px-4 py-4">Producto</th>
+                    <th class="px-4 py-4">Marca</th>
+                    <th class="px-4 py-4">Estado</th>
+                    <th class="px-4 py-4">Actualizar</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-stone-200 dark:divide-zinc-800">
+                {% for pedido in pedidos %}
+                    <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50">
+                        <td class="px-4 py-4">#{{ pedido.idSuministra }}</td>
+                        <td class="px-4 py-4">#{{ pedido.idProveedor }}</td>
+                        <td class="px-4 py-4">{{ pedido.proveedor }}</td>
+                        <td class="px-4 py-4">#{{ pedido.codProducto }}</td>
+                        <td class="px-4 py-4 font-medium">{{ pedido.producto }}</td>
+                        <td class="px-4 py-4">{{ pedido.marca }}</td>
+
+                        <td class="px-4 py-4">
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
+                                {% if pedido.estadoPedido == 'hecho' %}
+                                    bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300
+                                {% elif pedido.estadoPedido == 'espera' %}
+                                    bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300
+                                {% else %}
+                                    bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300
+                                {% endif %}">
+                                {{ pedido.estadoPedido|capitalize }}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-4">
+                            <form method="POST" action="{{ url_for('proveedores') }}"
+                                  class="flex items-center gap-2">
+
+                                <input type="hidden" name="accion" value="estado">
+                                <input type="hidden" name="idSuministra"
+                                       value="{{ pedido.idSuministra }}">
+
+                                <select name="estadoPedido"
+                                        aria-label="Estado del pedido {{ pedido.idSuministra }}"
+                                        class="rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+
+                                    {% for estado in ['hecho', 'espera', 'cancelado'] %}
+                                        <option value="{{ estado }}"
+                                                {% if pedido.estadoPedido == estado %}selected{% endif %}>
+                                            {{ estado|capitalize }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                <button type="submit"
+                                        class="rounded-lg bg-marca px-3 py-2 text-xs font-semibold text-white hover:bg-rose-600">
+                                    Guardar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="px-5 py-12 text-center text-stone-500">
+                            No se encontraron pedidos.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<details class="mt-6 rounded-2xl border border-stone-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <summary class="cursor-pointer font-semibold">
+        Directorio de todos los proveedores
+    </summary>
+
+    <div class="mt-5 overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="text-stone-500 dark:text-stone-400">
+                <tr>
+                    <th class="px-3 py-3">ID</th>
+                    <th class="px-3 py-3">Nombre completo</th>
+                    <th class="px-3 py-3">Dirección</th>
+                    <th class="px-3 py-3">Teléfono</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-stone-200 dark:divide-zinc-800">
+                {% for proveedor in proveedores %}
+                    <tr>
+                        <td class="px-3 py-3">{{ proveedor.idProveedor }}</td>
+                        <td class="px-3 py-3">
+                            {{ proveedor.nombre }} {{ proveedor.apellido }}
+                        </td>
+                        <td class="px-3 py-3">{{ proveedor.direc }}</td>
+                        <td class="px-3 py-3">{{ proveedor.telef }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="px-3 py-6 text-stone-500">
+                            No hay proveedores registrados.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</details>
+{% endblock %}

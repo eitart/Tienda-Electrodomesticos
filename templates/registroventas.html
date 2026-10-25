@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block titulo %}Ventas | Mi Portal{% endblock %}
+
+{% block main %}
+<div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold">Registro de ventas</h1>
+        <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+            Consulta ventas y edita las realizadas hoy.
+        </p>
+    </div>
+
+    <a href="{{ url_for('formulario_venta') }}"
+       class="inline-flex items-center gap-2 rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+        <i data-lucide="plus" class="h-5 w-5"></i>
+        Registrar venta
+    </a>
+</div>
+
+<form method="GET" action="{{ url_for('ventas') }}"
+      class="mb-6 flex flex-wrap items-end gap-4 rounded-2xl border border-stone-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+
+    <label class="block min-w-0 flex-1 basis-64 text-sm font-medium">
+        ID venta, ID producto o nombre del producto
+        <input name="buscar" value="{{ buscar }}"
+               placeholder="Ejemplo: 1 o Refrigerador"
+               class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+    </label>
+
+    <label class="block text-sm font-medium">
+        Ordenar por
+        <select name="orden"
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca dark:border-zinc-700 dark:bg-zinc-950">
+
+            <option value="fecha" {% if orden == 'fecha' %}selected{% endif %}>
+                Fecha: más reciente
+            </option>
+            <option value="cliente" {% if orden == 'cliente' %}selected{% endif %}>
+                Cliente
+            </option>
+            <option value="vendedor" {% if orden == 'vendedor' %}selected{% endif %}>
+                Vendedor
+            </option>
+        </select>
+    </label>
+
+    <button type="submit"
+            class="inline-flex items-center gap-2 rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white hover:bg-rose-600">
+        <i data-lucide="search" class="h-5 w-5"></i>
+        Buscar
+    </button>
+
+    <a href="{{ url_for('ventas') }}"
+       class="px-2 py-3 text-sm font-medium text-marca">
+        Limpiar
+    </a>
+</form>
+
+<div class="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-stone-100 text-stone-600 dark:bg-zinc-800 dark:text-stone-300">
+                <tr>
+                    <th class="whitespace-nowrap px-4 py-4">ID venta</th>
+                    <th class="px-4 py-4">Cliente</th>
+                    <th class="px-4 py-4">Fecha</th>
+                    <th class="px-4 py-4">Vendedor</th>
+                    <th class="whitespace-nowrap px-4 py-4">ID producto</th>
+                    <th class="px-4 py-4">Producto</th>
+                    <th class="px-4 py-4">Cantidad</th>
+                    <th class="whitespace-nowrap px-4 py-4">Precio unitario</th>
+                    <th class="px-4 py-4">Total</th>
+                    <th class="px-4 py-4">Pago</th>
+                    <th class="px-4 py-4">Acción</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-stone-200 dark:divide-zinc-800">
+                {% for venta in ventas %}
+                    <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50">
+                        <td class="px-4 py-4 font-semibold">#{{ venta.idVenta }}</td>
+                        <td class="px-4 py-4">{{ venta.cliente }}</td>
+                        <td class="whitespace-nowrap px-4 py-4">{{ venta.fecha }}</td>
+                        <td class="px-4 py-4">{{ venta.vendedor }}</td>
+                        <td class="px-4 py-4">#{{ venta.codProducto }}</td>
+                        <td class="px-4 py-4">{{ venta.producto }}</td>
+                        <td class="px-4 py-4">{{ venta.cantidad }}</td>
+
+                        <td class="whitespace-nowrap px-4 py-4">
+                            Bs {{ "%.2f"|format(venta.precioUnitario) }}
+                        </td>
+
+                        <td class="whitespace-nowrap px-4 py-4 font-semibold">
+                            Bs {{ "%.2f"|format(venta.total) }}
+                        </td>
+
+                        <td class="px-4 py-4">{{ venta.MetodoPago }}</td>
+
+                        <td class="px-4 py-4">
+                            {% if venta.fecha[:10] == hoy %}
+                                <a href="{{ url_for('formulario_venta', idVenta=venta.idVenta) }}"
+                                   class="inline-flex items-center gap-2 rounded-lg bg-marca/10 px-3 py-2 font-medium text-marca hover:bg-marca/20">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                    Editar
+                                </a>
+                            {% else %}
+                                <span class="text-xs text-stone-500 dark:text-stone-400">
+                                    Edición cerrada
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="11" class="px-5 py-12 text-center text-stone-500">
+                            No se encontraron ventas.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
