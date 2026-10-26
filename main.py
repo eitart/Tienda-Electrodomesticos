@@ -238,9 +238,7 @@ def login():
 
         conexion.close()
 
-        if empleado and check_password_hash(
-            empleado["password"], password
-        ):
+        if empleado and check_password_hash(empleado["password"], password):
             session.clear()
             session["idEmpleado"] = empleado["idEmpleado"]
             session["nombre"] = empleado["nombre"]
@@ -607,7 +605,7 @@ def formulario_venta(idVenta=None):
 
     conexion.close()
 
-    return render_template("formulario_venta.html",venta=venta,clientes=clientes,productos=productos)
+    return render_template("formularioVenta.html",venta=venta,clientes=clientes,productos=productos)
 
 
 
