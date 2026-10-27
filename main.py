@@ -649,11 +649,6 @@ def proveedores():
         elif accion == "pedido" or accion == "estado":
             estado = request.form["estadoPedido"]
 
-            if estado not in ["hecho", "espera", "cancelado"]:
-                conexion.close()
-                flash("Estado inválido.", "error")
-                return redirect(url_for("proveedores"))
-
             if accion == "pedido":
                 idProveedor = request.form.get("idProveedor", type=int)
                 codProducto = request.form.get("codProducto", type=int)
@@ -799,7 +794,6 @@ def usuarios():
             flash("Completa los campos obligatorios.", "error")
             return redirect(url_for("usuarios"))
 
-        # Comprueba el CI antes de insertar.
         conexion.execute("BEGIN IMMEDIATE")
 
         existe = conexion.execute("""
@@ -882,6 +876,46 @@ def usuarios():
 
 
 
-@main.route("/admin")
+@main.route("/admin", methods=["GET", "POST"])
 def admin():
-    return redirect(url_for("perfil"))
+    if session.get("idEmpleado") != 1:
+        return redirect(url_for("login"))
+
+    conexion = conexion_auto()
+
+    if request.method == "POST":
+        conexion.execute("""
+            INSERT INTO Empleado (
+                CI, nombre, apellidoP, apellidoM,
+                direcciones, salario, password, idPermiso
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            request.form["CI"],
+            request.form["nombre"],
+            request.form["apellidoP"],
+            request.form["apellidoM"],
+            request.form["direcciones"],
+            request.form["salario"],
+            generate_password_hash(request.form["password"]),
+            2
+        ))
+
+        conexion.commit()
+        conexion.close()
+
+        flash("Vendedor registrado.", "exito")
+        return redirect(url_for("admin"))
+
+    empleados = conexion.execute("""
+        SELECT
+            idEmpleado, CI, nombre, apellidoP, apellidoM,
+            direcciones, salario, idPermiso
+        FROM Empleado
+        WHERE idPermiso = 2
+        ORDER BY nombre COLLATE NOCASE
+    """).fetchall()
+
+    conexion.close()
+
+    return render_template("admin.html", empleados=empleados)

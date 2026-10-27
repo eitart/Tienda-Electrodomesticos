@@ -1,0 +1,268 @@
+{% extends "layout.html" %}
+
+{% block titulo %}Administrar vendedores | Mi Portal{% endblock %}
+
+{% block main %}
+
+<!-- ENCABEZADO -->
+<div class="mb-8">
+    <p class="text-sm font-semibold uppercase tracking-widest text-marca">
+        Panel de administración
+    </p>
+
+    <h1 class="mt-2 text-3xl font-bold">
+        Vendedores
+    </h1>
+
+    <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+        Añade nuevos vendedores y consulta sus datos.
+    </p>
+</div>
+
+<!-- FORMULARIO -->
+<section class="mb-8 rounded-2xl border border-stone-200 bg-white p-6 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900">
+
+    <div class="mb-6 flex items-center gap-4">
+        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-marca/10 text-marca">
+            <i data-lucide="user-plus" class="h-6 w-6"></i>
+        </span>
+
+        <div>
+            <h2 class="text-xl font-semibold">
+                Añadir vendedor
+            </h2>
+
+            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                Completa los campos obligatorios marcados con *.
+            </p>
+        </div>
+    </div>
+
+    <form
+        method="POST"
+        action="{{ url_for('admin') }}"
+        class="grid gap-5 sm:grid-cols-2">
+
+        <!-- CI -->
+        <label class="block text-sm font-medium">
+            CI *
+
+            <input
+                type="text"
+                name="CI"
+                placeholder="Ejemplo: 1234567"
+                required
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+
+            <span class="mt-2 block text-xs text-stone-500 dark:text-stone-400">
+                Será su usuario para iniciar sesión.
+            </span>
+        </label>
+
+        <!-- NOMBRES -->
+        <label class="block text-sm font-medium">
+            Nombres *
+
+            <input
+                type="text"
+                name="nombre"
+                placeholder="Ejemplo: Juan Carlos"
+                required
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- APELLIDO PATERNO -->
+        <label class="block text-sm font-medium">
+            Apellido paterno *
+
+            <input
+                type="text"
+                name="apellidoP"
+                placeholder="Ejemplo: Pérez"
+                required
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- APELLIDO MATERNO -->
+        <label class="block text-sm font-medium">
+            Apellido materno
+
+            <input
+                type="text"
+                name="apellidoM"
+                placeholder="Ejemplo: López"
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- DIRECCIÓN -->
+        <label class="block text-sm font-medium sm:col-span-2">
+            Dirección
+
+            <input
+                type="text"
+                name="direcciones"
+                placeholder="Calle, número y zona"
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- SALARIO -->
+        <label class="block text-sm font-medium">
+            Salario en bolivianos *
+
+            <input
+                type="number"
+                name="salario"
+                min="0"
+                max="1000000000"
+                step="0.01"
+                placeholder="Ejemplo: 3000"
+                required
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- CONTRASEÑA -->
+        <label class="block text-sm font-medium">
+            Contraseña *
+
+            <input
+                type="password"
+                name="password"
+                minlength="8"
+                autocomplete="new-password"
+                placeholder="Mínimo 8 caracteres"
+                required
+                class="mt-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none focus:border-marca focus:ring-2 focus:ring-marca/20 dark:border-zinc-700 dark:bg-zinc-950">
+        </label>
+
+        <!-- INFORMACIÓN -->
+        <div class="rounded-xl bg-marca/10 p-4 sm:col-span-2">
+            <p class="text-sm">
+                El vendedor podrá iniciar sesión con su CI y la contraseña
+                registrada. Su cuenta no tendrá acceso al panel de administración.
+            </p>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="flex flex-wrap items-center gap-3 sm:col-span-2">
+            <button
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-xl bg-marca px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-600">
+
+                <i data-lucide="user-plus" class="h-5 w-5"></i>
+                Agregar vendedor
+            </button>
+
+            <button
+                type="reset"
+                class="rounded-xl border border-stone-300 px-5 py-3 text-sm font-semibold transition hover:bg-stone-100 dark:border-zinc-700 dark:hover:bg-zinc-800">
+                Limpiar formulario
+            </button>
+        </div>
+
+    </form>
+</section>
+
+<!-- LISTA DE VENDEDORES -->
+{% set vendedores = empleados | selectattr('idPermiso', 'equalto', 2) | list %}
+
+<section class="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 p-6 dark:border-zinc-800">
+
+        <div>
+            <h2 class="text-xl font-semibold">
+                Vendedores registrados
+            </h2>
+
+            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                Consulta los datos del equipo de ventas.
+            </p>
+        </div>
+
+        <span class="rounded-full bg-marca/10 px-4 py-2 text-sm font-semibold text-marca">
+            {{ vendedores|length }} vendedores
+        </span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+
+            <thead class="bg-stone-100 text-stone-600 dark:bg-zinc-800 dark:text-stone-300">
+                <tr>
+                    <th class="px-5 py-4">ID</th>
+                    <th class="px-5 py-4">CI</th>
+                    <th class="px-5 py-4">Vendedor</th>
+                    <th class="px-5 py-4">Dirección</th>
+                    <th class="px-5 py-4">Salario</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-stone-200 dark:divide-zinc-800">
+
+                {% for vendedor in vendedores %}
+                    <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50">
+
+                        <td class="px-5 py-4">
+                            #{{ vendedor.idEmpleado }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {{ vendedor.CI }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-marca/10 text-xs font-bold text-marca">
+                                    {{ vendedor.nombre[:1]|upper }}{{ vendedor.apellidoP[:1]|upper }}
+                                </span>
+
+                                <div>
+                                    <p class="font-medium">
+                                        {{ vendedor.nombre }}
+                                        {{ vendedor.apellidoP }}
+                                        {{ vendedor.apellidoM or '' }}
+                                    </p>
+
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        Vendedor
+                                    </p>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {{ vendedor.direcciones or 'Sin registrar' }}
+                        </td>
+
+                        <td class="whitespace-nowrap px-5 py-4 font-medium">
+                            Bs {{ "%.2f"|format(vendedor.salario) }}
+                        </td>
+
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+
+                            <i data-lucide="users"
+                            class="mx-auto mb-3 h-10 w-10 text-stone-400"></i>
+
+                            <p class="font-medium">
+                                Todavía no hay vendedores registrados.
+                            </p>
+
+                            <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+                                Añade el primero utilizando el formulario.
+                            </p>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}
